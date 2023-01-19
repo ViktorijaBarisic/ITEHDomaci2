@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use Illuminate\Http\Request;
+use App\Http\Resources\BookResource;
 
 class BookController extends Controller
 {
@@ -49,9 +50,16 @@ class BookController extends Controller
      * @param  \App\Models\Book  $book
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    
+
+    public function show(Book $books)
     {
-        $books = Book::get()->where('id',$id);
+       return new BookResource($books);
+    }
+
+    public function getByCategory($id)
+    {
+        $books = Book::get()->where('category',$id);
         return $books;
     }
 
