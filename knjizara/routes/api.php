@@ -39,3 +39,18 @@ Route::post('/login',[AuthController::class,'login']);
 
 
 
+Route::group(['middleware' => ['auth:sanctum']], function () {
+
+    Route::get('/profile', function(Request $request) {
+        return auth()->user();
+    });
+
+    Route::resource('books', BookController::class)->only(['store', 'update', 'destroy']);
+
+    // Route::get('my-books',[BooksController::class,'myBooks']);
+
+    Route::post('/logout',[AuthController::class,'logout']);
+
+    
+});
+
