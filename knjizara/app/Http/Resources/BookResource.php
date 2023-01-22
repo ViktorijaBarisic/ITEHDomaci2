@@ -13,6 +13,10 @@ class BookResource extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
+
+     public static $wrap = 'book';
+
+     
     public function toArray($request)
     {
     

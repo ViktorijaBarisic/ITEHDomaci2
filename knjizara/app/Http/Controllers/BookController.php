@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use Illuminate\Http\Request;
 use App\Http\Resources\BookResource;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
 {
@@ -14,7 +16,7 @@ class BookController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    //  public static $wrap = 'books';
+    
 
     public function index()
     {
@@ -41,7 +43,29 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator=Validator::make($request->all(),[
+            'name'=>'required|string|max:255',
+            'description'=>'required|string',
+            'price'=>'required|Integer|max:40',
+            'category'=>'required',
+            'user_id'=>'required'
+
+
+        ]);
+        if($validator->fails()){
+            return response()->json($validator->errors());
+        }
+        $book=new Book;
+        $book->name=$request->name;
+        $book->description=$request->description;
+        $book->price=$request->price;
+        $book->user_id=Auth::user()->id;
+        $book->category=$request->category;
+        
+
+        $book->save();
+
+        return response()->json(['Knjiga je sacuvana!',new BookResource($book)]);
     }
 
     /**
@@ -52,9 +76,9 @@ class BookController extends Controller
      */
     
 
-    public function show(Book $books)
+    public function show(Book $book)
     {
-       return new BookResource($books);
+       return new BookResource($book);
     }
 
     public function getByCategory($id)
@@ -83,7 +107,32 @@ class BookController extends Controller
      */
     public function update(Request $request, Book $book)
     {
-        //
+        $validator=Validator::make($request->all(),[
+            'name'=>'required|string|max:255',
+            'description'=>'required|string',
+            'price'=>'required|Integer|max:40',
+            'category'=>'required',
+            'user_id'=>'required'
+
+
+        ]);
+        if($validator->fails()){
+            return response()->json($validator->errors());
+        }
+        
+        $book->name=$request->name;
+        $book->description=$request->description;
+        $book->price=$request->price;
+        $book->user_id=Auth::user()->id;
+        $book->category=$request->category;
+       
+
+        $result=$book->update();
+
+        if($result==false){
+            return response()->json('Promjene nisu sacuvane!');
+        }
+        return response()->json(['Promjene su uspjesno sacuvane!',new BookResource($book)]);
     }
 
     /**
@@ -94,6 +143,21 @@ class BookController extends Controller
      */
     public function destroy(Book $book)
     {
-        //
+        $book->delete();
+
+        return response()->json('Knjiga je uspjesno obrisana!');
+    }
+
+    public function my_books(Request $request){
+        $book=Book::get()->where('user_id',Auth::user()->id);
+        if(count($book)==0){
+            return 'You do not have saved books!';
+        }
+        $myBooks=array();
+        foreach($book as $b){
+            array_push($myBooks,new BookResource($b));
+        }
+
+        return $myBooks;
     }
 }
